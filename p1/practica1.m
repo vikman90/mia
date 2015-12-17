@@ -22,7 +22,7 @@ function varargout = practica1(varargin)
 
 % Edit the above text to modify the response to help practica1
 
-% Last Modified by GUIDE v2.5 17-Dec-2015 21:24:50
+% Last Modified by GUIDE v2.5 17-Dec-2015 23:06:46
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,7 +60,11 @@ set(handles.btsave, 'cdata', imresize(imread('res/floppy.png'), [24 24]));
 set(handles.btcolorbar, 'cdata', imresize(imread('res/color.png'), [24 24]));
 handles.axes = {handles.axes1 handles.axes2 handles.axes3};
 handles.ifile = 1;
+handles.iorigin = 1;
+handles.itarget = 2;
 handles.hasColorbar = zeros(1, 3);
+handles.curColormap = 'gray';
+handles.sizes = {handles.txtSize1 handles.txtSize2 handles.txtSize3};
 
 % Update handles structure
 guidata(hObject, handles);
@@ -87,7 +91,7 @@ function btopen_Callback(hObject, eventdata, handles)
 
 filename = imgetfile;
 
-if (filename(2))
+if (filename)
     im = imread(filename);
     
     if (ndims(im) > 2)
@@ -97,7 +101,9 @@ if (filename(2))
     i = handles.ifile;
     axes(handles.axes{i});
     imshow(im);
+    colormap(handles.curColormap);
     handles.im{i} = im;
+    updatesize(handles, i);
     guidata(hObject, handles);
 end
 
@@ -179,20 +185,22 @@ function menuColor_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns menuColor contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from menuColor
 
-updatecolormap(handles, handles.ifile);
+updatecolormap(hObject, handles);
 
 
 % --- Callback colectivo para el slider y el menu desplegable
-function updatecolormap(handles, i)
+function updatecolormap(hObject, handles)
+% hObject   manejador de objeto (solo importa el padre, para guidata)
 % handles   estructura de manejadores
-% i         endice de eje
 
 string = cellstr(get(handles.menuColor, 'string'));
 value = get(handles.menuColor, 'value');
 name = string{value};
 range = get(handles.slRange, 'value');
-map = strcat(name, '(', int2str(range), ')');
-colormap(handles.axes{i}, map);
+
+handles.curColormap = strcat(name, '(', int2str(range), ')');
+colormap(handles.curColormap);
+guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function menuColor_CreateFcn(hObject, eventdata, handles)
@@ -216,7 +224,7 @@ function slRange_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
-updatecolormap(handles, handles.ifile);
+updatecolormap(hObject, handles);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -229,3 +237,83 @@ function slRange_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+
+% --- Executes on button press in btOrigin1.
+function btOrigin1_Callback(hObject, eventdata, handles)
+% hObject    handle to btOrigin1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btOrigin1
+
+handles.iorigin = 1;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in btOrigin2.
+function btOrigin2_Callback(hObject, eventdata, handles)
+% hObject    handle to btOrigin2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btOrigin2
+
+handles.iorigin = 2;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in btOrigin3.
+function btOrigin3_Callback(hObject, eventdata, handles)
+% hObject    handle to btOrigin3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btOrigin3
+
+handles.iorigin = 3;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in btTarget1.
+function btTarget1_Callback(hObject, eventdata, handles)
+% hObject    handle to btTarget1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btTarget1
+
+handles.itarget = 1;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in btTarget2.
+function btTarget2_Callback(hObject, eventdata, handles)
+% hObject    handle to btTarget2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btTarget2
+
+handles.itarget = 2;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in btTarget3.
+function btTarget3_Callback(hObject, eventdata, handles)
+% hObject    handle to btTarget3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btTarget3
+
+handles.itarget = 3;
+guidata(hObject, handles);
+
+% --- Actualiza la información del tamaño de imagen
+function updatesize(handles, i)
+% handles   manejadores
+% i         índice de eje
+
+s = size(handles.im{i});
+set(handles.sizes{i}, 'string', horzcat(int2str(s(2)), ' x ', int2str(s(1))));
