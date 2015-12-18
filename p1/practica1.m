@@ -98,6 +98,7 @@ function btopen_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+set(handles.txtStatus, 'String', '');
 filename = imgetfile;
 
 if (filename)
@@ -123,6 +124,7 @@ function btsave_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+set(handles.txtStatus, 'String', '');
 filename = imputfile;
 
 if (filename(2))
@@ -365,11 +367,10 @@ f = handles.subFactor;
 
 set(handles.txtStatus, 'String', '');
 
-
 if (m == 0)
     set(handles.txtStatus, 'String', 'La ventana de origen está vacía.');
     return;
-elseif (~f)
+elseif (f < 1)
     set(handles.txtStatus, 'String', 'Especifique un factor mayor que 0.');
     return;
 end
@@ -421,6 +422,44 @@ function btInterpolate_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+i = handles.iorigin;
+j = handles.itarget;
+f = handles.interFactor;
+w = handles.interWidth;
+h = handles.interHeight;
+[m, n] = size(handles.im{i});
+
+set(handles.txtStatus, 'String', '');
+
+if (m == 0)
+    set(handles.txtStatus, 'String', 'La ventana de origen está vacía.');
+    return;
+end
+
+if (handles.argtype == 1)
+    if (f < 1)
+        set(handles.txtStatus, 'String', 'Especifique un factor mayor que 0.');
+        return;
+    end
+    
+    handles.im{j} = imresize(handles.im{i}, f, handles.method);
+else
+    if (w < 1)
+        set(handles.txtStatus, 'String', 'Especifique un ancho mayor que 0.');
+        return
+    elseif (h < 1)
+        set(handles.txtStatus, 'String', 'Especifique un alto mayor que 0.');
+        return;
+    end
+    
+    handles.im{j} = imresize(handles.im{i}, [w h], handles.method);
+end
+
+axes(handles.axes{j});
+imshow(handles.im{j}, []);
+colormap(handles.curColormap);
+updatesize(handles, j);
+guidata(hObject, handles);
 
 
 function txtInterFactor_Callback(hObject, eventdata, handles)
@@ -431,7 +470,14 @@ function txtInterFactor_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of txtInterFactor as text
 %        str2double(get(hObject,'String')) returns contents of txtInterFactor as a double
 
-handles.interFactor = str2num(get(hObject, 'String'));
+[x, status] = str2num(get(hObject, 'String'));
+
+if (status)
+    handles.interFactor = x;
+else
+    handles.interFactor = 0;
+end
+
 guidata(hObject, handles);
 
 
@@ -457,7 +503,14 @@ function txtInterWidth_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of txtInterWidth as text
 %        str2double(get(hObject,'String')) returns contents of txtInterWidth as a double
 
-handles.interWidth = str2num(get(hObject, 'String'));
+[x, status] = str2num(get(hObject, 'String'));
+
+if (status)
+    handles.interWidth = x;
+else
+    handles.interWidth = 0;
+end
+
 guidata(hObject, handles);
 
 
@@ -483,7 +536,14 @@ function txtInterHeight_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of txtInterHeight as text
 %        str2double(get(hObject,'String')) returns contents of txtInterHeight as a double
 
-handles.interHeight = str2num(get(hObject, 'String'));
+[x, status] = str2num(get(hObject, 'String'));
+
+if (status)
+    handles.interHeight = x;
+else
+    handles.interHeight = 0;
+end
+
 guidata(hObject, handles);
 
 
@@ -536,7 +596,14 @@ function txtSubFactor_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of txtSubFactor as text
 %        str2double(get(hObject,'String')) returns contents of txtSubFactor as a double
 
-handles.subFactor = str2num(get(hObject, 'String'));
+[x, status] = str2num(get(hObject, 'String'));
+
+if (status)
+    handles.subFactor = x;
+else
+    handles.subFactor = 0;
+end
+
 guidata(hObject, handles);
 
 
