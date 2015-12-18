@@ -22,7 +22,7 @@ function varargout = practica2(varargin)
 
 % Edit the above text to modify the response to help practica2
 
-% Last Modified by GUIDE v2.5 18-Dec-2015 17:48:38
+% Last Modified by GUIDE v2.5 18-Dec-2015 22:40:25
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -413,6 +413,7 @@ if size(handles.im{2}) ~= [0 0]
     set(handles.txtNoiseMse, 'String', horzcat('MSE: ', num2str(e)));
     set(handles.txtNoiseSnr, 'String', horzcat('SNR: ', num2str(s), ' dB'));
     updatesize(handles, 2);
+    guidata(hObject, handles);
 end
 
 
@@ -424,6 +425,14 @@ function menuFilterMethod_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns menuFilterMethod contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from menuFilterMethod
+
+if get(hObject, 'Value') == 2
+    set(handles.txtSigma, 'Visible', 'on');
+    set(handles.inFilterSigma, 'Visible', 'on');
+else
+    set(handles.txtSigma, 'Visible', 'off');
+    set(handles.inFilterSigma, 'Visible', 'off');
+end
 
 
 % --- Executes during object creation, after setting all properties.
@@ -466,6 +475,51 @@ function btFilter_Callback(hObject, eventdata, handles)
 % hObject    handle to btFilter (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+if (size(handles.im{2}) == [0 0])
+    errordlg('No hay imagen observada.');
+    return
+end
+
+[s status] = str2num(get(handles.inFilterSize, 'String'));
+
+if status == 0 || s < 1
+    errordlg('Tamaño incorrecto.');
+    return
+end
+
+switch get(handles.menuFilterMethod, 'Value')
+    case 1
+        h = fspecial('average', s);
+        handles.im{3} = imfilter(handles.im{2}, h, 'conv');
+    case 2
+        [sigma status] = str2num(get(handles.inFilterSigma, 'String'));
+        
+        if status == 0 || s < 0
+            errordlg('Desviación incorrecta.');
+            return
+        end
+        
+        h = fspecial('gaussian', s, sigma);
+        handles.im{3} = imfilter(handles.im{2}, h, 'conv');
+    case 3
+        handles.im{3} = medfilt2(handles.im{2}, [s s]);
+    case 4
+        handles.im{3} = ordfilt2(handles.im{2}, 1, ones(s));
+    case 5
+        handles.im{3} = ordfilt2(handles.im{2}, s * s, ones(s));
+end
+
+e = mse(handles.im{3}, handles.im{2});
+s = snr(handles.im{3}, handles.im{2});
+i = isnr(handles.im{1}, handles.im{2}, handles.im{3});
+axes(handles.axes{3});
+imshow(handles.im{3}, []);
+set(handles.txtFilterMse, 'String', horzcat('MSE: ', num2str(e)));
+set(handles.txtFilterSnr, 'String', horzcat('SNR: ', num2str(s), ' dB'));
+set(handles.txtFilterIsnr, 'String', horzcat('ISNR: ', num2str(i), ' dB'));
+updatesize(handles, 3);
+guidata(hObject, handles);
 
 
 % --- Executes on button press in btCompare.
@@ -707,15 +761,48 @@ function error = mse(I, G)
 % I     Imagen original
 % G     Imagen observada
 
-E = ((I - G) .^ 2);
+E = (I - G) .^ 2;
 error = sum(E(:)) / prod(size(I));
 
 
 % --- Relación señal/ruido
 function db = snr(I, G)
-% I     Imagen original
-% G     Imagen observada
+% I     imagen original
+% G     imagen observada
 
 D = (I - mean2(I)) .^ 2;
 E = (I - G) .^ 2;
 db = 10 * log10(sum(D(:)) / sum(E(:)));
+
+
+% --- Métrica de la mejora de SNR
+function db = isnr(I, G, F)
+% I     imagen original
+% G     imagen observada
+% F     imagen filtrada
+
+E = (I - G) .^ 2;
+D = (I - E) .^ 2;
+db = 10 * log10(sum(E(:)) / sum(D(:)));
+
+
+function inFilterSigma_Callback(hObject, eventdata, handles)
+% hObject    handle to inFilterSigma (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of inFilterSigma as text
+%        str2double(get(hObject,'String')) returns contents of inFilterSigma as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function inFilterSigma_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to inFilterSigma (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
