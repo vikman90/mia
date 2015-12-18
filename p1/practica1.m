@@ -662,9 +662,9 @@ function I2 = immean(I, factor)
 
 h = ones(factor) / factor^2;
 
-%if (mod(factor, 2) == 0)
-%    h(:, factor + 1) = 0;
-%    h(factor + 1, :) = 0;
-%end
+if (mod(factor, 2) == 0)
+    h(:, factor + 1) = 0;
+    h(factor + 1, :) = 0;
+end
 
 I2 = imfilter(I, h, 'conv');    % Por defecto: 'same'
