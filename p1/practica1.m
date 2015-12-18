@@ -449,7 +449,7 @@ elseif (s1 - s2 ~= [0 0])
     return;
 end
 
-error = sum(sum(im2double(handles.im{i} - handles.im{j}).^2)) / prod(s1);
+error = mse(handles.im{i}, handles.im{j});
 set(handles.txtError, 'String', num2str(error));
 
 
@@ -668,3 +668,12 @@ if (mod(factor, 2) == 0)
 end
 
 I2 = imfilter(I, h, 'conv');    % Por defecto: 'same'
+
+
+% --- Error cuadratico medio
+function error = mse(I, G)
+% I     Imagen original
+% G     Imagen observada
+
+E = ((I - G) .^ 2);
+error = sum(E(:)) / prod(size(I));
