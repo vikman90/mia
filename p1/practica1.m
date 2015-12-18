@@ -22,7 +22,7 @@ function varargout = practica1(varargin)
 
 % Edit the above text to modify the response to help practica1
 
-% Last Modified by GUIDE v2.5 17-Dec-2015 23:06:46
+% Last Modified by GUIDE v2.5 18-Dec-2015 10:22:55
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -58,6 +58,7 @@ handles.output = hObject;
 set(handles.btopen, 'cdata', imresize(imread('res/box.png'), [24 24]));
 set(handles.btsave, 'cdata', imresize(imread('res/floppy.png'), [24 24]));
 set(handles.btcolorbar, 'cdata', imresize(imread('res/color.png'), [24 24]));
+handles.im = cell(1, 3);
 handles.axes = {handles.axes1 handles.axes2 handles.axes3};
 handles.ifile = 1;
 handles.iorigin = 1;
@@ -65,6 +66,14 @@ handles.itarget = 2;
 handles.hasColorbar = zeros(1, 3);
 handles.curColormap = 'gray';
 handles.sizes = {handles.txtSize1 handles.txtSize2 handles.txtSize3};
+handles.methods = {'nearest', 'bilinear', 'bicubic'};
+handles.method = 'nearest';
+handles.argtype = 1; % 1: factor, 2: tamaño
+handles.subFactor = 2;
+handles.interFactor = 2;
+handles.interWidth = 128;
+handles.interHeight = 128;
+handles.useMean = false;
 
 % Update handles structure
 guidata(hObject, handles);
@@ -100,7 +109,7 @@ if (filename)
 
     i = handles.ifile;
     axes(handles.axes{i});
-    imshow(im);
+    imshow(im, []);
     colormap(handles.curColormap);
     handles.im{i} = im;
     updatesize(handles, i);
@@ -193,10 +202,10 @@ function updatecolormap(hObject, handles)
 % hObject   manejador de objeto (solo importa el padre, para guidata)
 % handles   estructura de manejadores
 
-string = cellstr(get(handles.menuColor, 'string'));
-value = get(handles.menuColor, 'value');
+string = cellstr(get(handles.menuColor, 'String'));
+value = get(handles.menuColor, 'Value');
 name = string{value};
-range = get(handles.slRange, 'value');
+range = get(handles.slRange, 'Value');
 
 handles.curColormap = strcat(name, '(', int2str(range), ')');
 colormap(handles.curColormap);
@@ -316,4 +325,242 @@ function updatesize(handles, i)
 % i         índice de eje
 
 s = size(handles.im{i});
-set(handles.sizes{i}, 'string', horzcat(int2str(s(2)), ' x ', int2str(s(1))));
+set(handles.sizes{i}, 'String', horzcat(int2str(s(2)), ' x ', int2str(s(1))));
+
+
+% --- Executes on button press in btFactor.
+function btFactor_Callback(hObject, eventdata, handles)
+% hObject    handle to btFactor (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btFactor
+
+handles.argtype = 1;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in btSize.
+function btSize_Callback(hObject, eventdata, handles)
+% hObject    handle to btSize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btSize
+
+handles.argtype = 2;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in btSubsample.
+function btSubsample_Callback(hObject, eventdata, handles)
+% hObject    handle to btSubsample (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+i = handles.iorigin;
+j = handles.itarget;
+f = handles.subFactor;
+[m, n] = size(handles.im{i});
+
+set(handles.txtStatus, 'String', '');
+
+
+if (m == 0)
+    set(handles.txtStatus, 'String', 'La ventana de origen está vacía.');
+    return;
+elseif (~f)
+    set(handles.txtStatus, 'String', 'Especifique un factor mayor que 0.');
+    return;
+end
+
+if (handles.useMean)
+    im = immean(handles.im{i}, handles.subFactor);
+    handles.im{j} = im(1:f:m, 1:f:n);
+else
+    handles.im{j} = handles.im{i}(1:f:m, 1:f:n);
+end
+
+axes(handles.axes{j});
+imshow(handles.im{j}, []);
+colormap(handles.curColormap);
+updatesize(handles, j);
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function txtSubFactor_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to txtSubFactor (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in btDiff.
+function btDiff_Callback(hObject, eventdata, handles)
+% hObject    handle to btDiff (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in btError.
+function btError_Callback(hObject, eventdata, handles)
+% hObject    handle to btError (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in btInterpolate.
+function btInterpolate_Callback(hObject, eventdata, handles)
+% hObject    handle to btInterpolate (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+function txtInterFactor_Callback(hObject, eventdata, handles)
+% hObject    handle to txtInterFactor (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of txtInterFactor as text
+%        str2double(get(hObject,'String')) returns contents of txtInterFactor as a double
+
+handles.interFactor = str2num(get(hObject, 'String'));
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function txtInterFactor_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to txtInterFactor (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function txtInterWidth_Callback(hObject, eventdata, handles)
+% hObject    handle to txtInterWidth (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of txtInterWidth as text
+%        str2double(get(hObject,'String')) returns contents of txtInterWidth as a double
+
+handles.interWidth = str2num(get(hObject, 'String'));
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function txtInterWidth_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to txtInterWidth (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function txtInterHeight_Callback(hObject, eventdata, handles)
+% hObject    handle to txtInterHeight (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of txtInterHeight as text
+%        str2double(get(hObject,'String')) returns contents of txtInterHeight as a double
+
+handles.interHeight = str2num(get(hObject, 'String'));
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function txtInterHeight_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to txtInterHeight (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in menuMethod.
+function menuMethod_Callback(hObject, eventdata, handles)
+% hObject    handle to menuMethod (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns menuMethod contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from menuMethod
+
+i = get(hObject, 'Value');
+handles.method = handles.methods{i};
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function menuMethod_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to menuMethod (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function txtSubFactor_Callback(hObject, eventdata, handles)
+% hObject    handle to txtSubFactor (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of txtSubFactor as text
+%        str2double(get(hObject,'String')) returns contents of txtSubFactor as a double
+
+handles.subFactor = str2num(get(hObject, 'String'));
+guidata(hObject, handles);
+
+
+% --- Executes on button press in boxMean.
+function boxMean_Callback(hObject, eventdata, handles)
+% hObject    handle to boxMean (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of boxMean
+
+handles.useMean = get(hObject, 'Value');
+guidata(hObject, handles);
+
+% --- Suavizar imagen mediante la media
+function I2 = immean(I, factor)
+% I         imagen de entrada
+% factor    factor de suavizado
+
+h = ones(factor) / factor^2;
+
+%if (mod(factor, 2) == 0)
+%    h(:, factor + 1) = 0;
+%    h(factor + 1, :) = 0;
+%end
+
+I2 = imfilter(I, h, 'conv');    % Por defecto: 'same'
