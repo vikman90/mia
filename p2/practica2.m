@@ -528,6 +528,25 @@ function btCompare_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+i = handles.iorigin;
+j = handles.itarget;
+s1 = size(handles.im{i});
+s2 = size(handles.im{j});
+
+if (s1 == [0 0]) 
+    errordlg('La ventana A está vacía.');
+    return;
+elseif (s2 == [0 0]) 
+    errordlg('La ventana B está vacía.');
+    return;
+elseif (s1 - s2 ~= [0 0])
+    errordlg('El tamaño de las imágenes difiere.');
+    return;
+end
+
+figure;
+imshow(handles.im{i} - handles.im{j}, []);
+
 
 % --- Executes on button press in btFile1.
 function btFile1_Callback(hObject, eventdata, handles)
