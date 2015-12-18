@@ -22,7 +22,7 @@ function varargout = practica2(varargin)
 
 % Edit the above text to modify the response to help practica2
 
-% Last Modified by GUIDE v2.5 18-Dec-2015 16:13:08
+% Last Modified by GUIDE v2.5 18-Dec-2015 17:48:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,6 +55,27 @@ function practica2_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for practica2
 handles.output = hObject;
 
+set(handles.btOpen, 'cdata', imresize(imread('res/box.png'), [24 24]));
+set(handles.btSave, 'cdata', imresize(imread('res/floppy.png'), [24 24]));
+set(handles.btColorbar, 'cdata', imresize(imread('res/color.png'), [24 24]));
+handles.im = cell(1, 3);
+handles.axes = {handles.axes1 handles.axes2 handles.axes3};
+handles.ifile = 1;
+handles.iorigin = 1;
+handles.itarget = 2;
+handles.hasColorbar = zeros(1, 3);
+handles.sizes = {handles.txtSize1 handles.txtSize2 handles.txtSize3};
+handles.noiseA = -5;
+handles.noiseB = 5;
+handles.noiseMean = 0;
+handles.noiseVariance = 1;
+handles.noiseAlpha = 0.1;
+handles.noiseSalt = 5;
+handles.noisePepper = 5;
+
+hidepanels(handles);
+set(handles.ppUniform, 'Visible', 'on');
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -71,7 +92,6 @@ function varargout = practica2_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
-
 
 
 function inNoisePepper_Callback(hObject, eventdata, handles)
@@ -96,7 +116,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function inNoiseSalt_Callback(hObject, eventdata, handles)
 % hObject    handle to inNoiseSalt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -117,7 +136,6 @@ function inNoiseSalt_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function inNoiseAlpha_Callback(hObject, eventdata, handles)
@@ -142,7 +160,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function inNoiseMean_Callback(hObject, eventdata, handles)
 % hObject    handle to inNoiseMean (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -163,7 +180,6 @@ function inNoiseMean_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function inNoiseVariance_Callback(hObject, eventdata, handles)
@@ -188,7 +204,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function inNoiseA_Callback(hObject, eventdata, handles)
 % hObject    handle to inNoiseA (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -211,19 +226,18 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
-function edit2_Callback(hObject, eventdata, handles)
-% hObject    handle to edit2 (see GCBO)
+function inNoiseB_Callback(hObject, eventdata, handles)
+% hObject    handle to inNoiseB (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit2 as text
-%        str2double(get(hObject,'String')) returns contents of edit2 as a double
+% Hints: get(hObject,'String') returns contents of inNoiseB as text
+%        str2double(get(hObject,'String')) returns contents of inNoiseB as a double
 
 
 % --- Executes during object creation, after setting all properties.
-function edit2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit2 (see GCBO)
+function inNoiseB_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to inNoiseB (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -242,6 +256,19 @@ function menuNoiseMethod_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns menuNoiseMethod contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from menuNoiseMethod
+
+hidepanels(handles);
+
+switch get(hObject, 'Value')
+    case 1 
+        set(handles.ppUniform, 'Visible', 'on');
+    case 2 
+        set(handles.ppGaussAdd, 'Visible', 'on');
+    case 3 
+        set(handles.ppGaussMul, 'Visible', 'on');
+    case 4 
+        set(handles.ppSaltPepper, 'Visible', 'on');
+end
 
 
 % --- Executes during object creation, after setting all properties.
@@ -294,12 +321,47 @@ function btOpen_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+filename = imgetfile;
+
+if (filename)
+    im = imread(filename);
+    
+    if (ndims(im) > 2)
+        im = rgb2gray(im);
+    end
+
+    i = handles.ifile;
+    axes(handles.axes{i});
+    imshow(im, []);
+    handles.im{i} = im;
+    updatesize(handles, i);
+    guidata(hObject, handles);
+end
+
 
 % --- Executes on button press in btSave.
 function btSave_Callback(hObject, eventdata, handles)
 % hObject    handle to btSave (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+set(handles.txtStatus, 'String', '');
+filename = imputfile;
+
+if (filename(2))
+    imwrite(handles.im{handles.ifile}, filename);
+end
+
+i = handles.ifile;
+
+if (handles.hasColorbar(i))
+    colorbar(handles.axes{i}, 'off');
+else
+    colorbar(handles.axes{i});
+end
+
+handles.hasColorbar(i) = ~handles.hasColorbar(i);
+guidata(hObject, handles);
 
 
 % --- Executes on button press in btColorbar.
@@ -308,12 +370,50 @@ function btColorbar_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+i = handles.ifile;
+
+if (handles.hasColorbar(i))
+    colorbar(handles.axes{i}, 'off');
+else
+    colorbar(handles.axes{i});
+end
+
+handles.hasColorbar(i) = ~handles.hasColorbar(i);
+guidata(hObject, handles);
+
 
 % --- Executes on button press in btNoise.
 function btNoise_Callback(hObject, eventdata, handles)
 % hObject    handle to btNoise (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+if (size(handles.im{1}) == [0 0])
+    errordlg('No hay imagen de entrada.');
+    return
+end
+
+switch get(handles.menuNoiseMethod, 'Value')
+    case 1
+        handles.im{2} = noiseuniform(handles);
+    case 2
+        handles.im{2} = noisegaussadd(handles);
+    case 3
+        handles.im{2} = noisegaussmul(handles);
+    case 4
+        handles.im{2} = noisesaltpepper(handles);
+end
+
+if size(handles.im{2}) ~= [0 0]
+    e = mse(handles.im{1}, handles.im{2});
+    s = snr(handles.im{1}, handles.im{2});
+    
+    axes(handles.axes{2});
+    imshow(handles.im{2}, []);
+    set(handles.txtNoiseMse, 'String', horzcat('MSE: ', num2str(e)));
+    set(handles.txtNoiseSnr, 'String', horzcat('SNR: ', num2str(s), ' dB'));
+    updatesize(handles, 2);
+end
 
 
 % --- Executes on selection change in menuFilterMethod.
@@ -337,7 +437,6 @@ function menuFilterMethod_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
 
 
 function inFilterSize_Callback(hObject, eventdata, handles)
@@ -374,3 +473,249 @@ function btCompare_Callback(hObject, eventdata, handles)
 % hObject    handle to btCompare (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in btFile1.
+function btFile1_Callback(hObject, eventdata, handles)
+% hObject    handle to btFile1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btFile1
+
+handles.ifile = 1;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in btFile2.
+function btFile2_Callback(hObject, eventdata, handles)
+% hObject    handle to btFile2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btFile2
+
+handles.ifile = 2;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in btFile3.
+function btFile3_Callback(hObject, eventdata, handles)
+% hObject    handle to btFile3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btFile3
+
+handles.ifile = 3;
+guidata(hObject, handles);
+
+
+% --- Actualiza la información del tamaño de imagen
+function updatesize(handles, i)
+% handles   manejadores
+% i         índice de eje
+
+s = size(handles.im{i});
+set(handles.sizes{i}, 'String', horzcat(int2str(s(2)), ' x ', int2str(s(1))));
+
+% --- Ocultar todos los paneles de parámetros
+function hidepanels(handles)
+% handles   manejadores
+
+set(handles.ppUniform, 'Visible', 'off');
+set(handles.ppGaussAdd, 'Visible', 'off');
+set(handles.ppGaussMul, 'Visible', 'off');
+set(handles.ppSaltPepper, 'Visible', 'off');
+
+
+% --- Executes on button press in btOrig1.
+function btOrig1_Callback(hObject, eventdata, handles)
+% hObject    handle to btOrig1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btOrig1
+
+handles.iorigin = 1;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in btOrig2.
+function btOrig2_Callback(hObject, eventdata, handles)
+% hObject    handle to btOrig2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btOrig2
+
+handles.iorigin = 2;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in btOrig3.
+function btOrig3_Callback(hObject, eventdata, handles)
+% hObject    handle to btOrig3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btOrig3
+
+handles.iorigin = 3;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in btTarget1.
+function btTarget1_Callback(hObject, eventdata, handles)
+% hObject    handle to btTarget1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btTarget1
+
+handles.itarget = 1;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in btTarget2.
+function btTarget2_Callback(hObject, eventdata, handles)
+% hObject    handle to btTarget2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btTarget2
+
+handles.itarget = 2;
+guidata(hObject, handles);
+
+
+% --- Executes on button press in btTarget3.
+function btTarget3_Callback(hObject, eventdata, handles)
+% hObject    handle to btTarget3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of btTarget3
+
+handles.itarget = 3;
+guidata(hObject, handles);
+
+
+% --- Ruido uniforme
+function I = noiseuniform(handles)
+% handles   manejadores
+
+I = [];
+
+[a status] = str2num(get(handles.inNoiseA, 'String'));
+
+if status == 0
+    errordlg('Parámetro A incorrecto.');
+    return
+end
+
+[b status] = str2num(get(handles.inNoiseB, 'String'));
+
+if status == 0
+    errordlg('Parámetro B incorrecto.');
+    return
+end
+
+if a > b
+    [a b] = deal(b, a);
+end
+
+noise = rand(size(handles.im{1})) * (b - a) + a;
+I = uint8(double(handles.im{1}) + noise);
+
+% --- Ruido gaussiano aditivo
+function I = noisegaussadd(handles)
+% handles   manejadores
+
+I = [];
+
+[mean status] = str2num(get(handles.inNoiseMean, 'String'));
+
+if status == 0
+    errordlg('Media incorrecta.');
+    return
+end
+
+[var status] = str2num(get(handles.inNoiseVariance, 'String'));
+
+if status == 0 || var < 0
+    errordlg('Varianza incorrecta.');
+    return
+end
+
+noise = randn(size(handles.im{1})) * sqrt(var) + mean;
+I = uint8(double(handles.im{1}) + noise);
+
+% --- Ruido gaussiano multiplicativo
+function I = noisegaussmul(handles)
+% handles   manejadores
+
+I = [];
+
+[alpha status] = str2num(get(handles.inNoiseAlpha, 'String'));
+
+if status == 0 || alpha < 0
+    errordlg('Parámetro alfa incorrecto.');
+    return
+end
+
+im = double(handles.im{1});
+noise = randn(size(im)) .* sqrt(alpha * im);
+I = uint8(im + noise);
+
+% --- Ruido de sal y pimienta
+function I = noisesaltpepper(handles)
+% handles   manejadores
+
+I = [];
+
+[salt status] = str2num(get(handles.inNoiseSalt, 'String'));
+
+if status == 0 || salt < 0
+    errordlg('Porcentaje de sal incorrecto.');
+    return
+end
+
+[pepper status] = str2num(get(handles.inNoisePepper, 'String'));
+
+if status == 0 || salt < 0
+    errordlg('Porcentaje de pimienta incorrecto.');
+    return
+end
+
+if salt + pepper > 100
+    errordlg('Suma de porcentajes incorrecto.');
+    return
+end
+
+pepper = 1 - pepper / 100;
+salt = pepper - salt / 100;
+
+X = rand(size(handles.im{1}));
+I = handles.im{1};
+I(find(X >= salt & X < pepper)) = 255;
+I(find(X >= pepper)) = 0;
+
+
+% --- Error cuadratico medio
+function error = mse(I, G)
+% I     Imagen original
+% G     Imagen observada
+
+E = ((I - G) .^ 2);
+error = sum(E(:)) / prod(size(I));
+
+
+% --- Relación señal/ruido
+function db = snr(I, G)
+% I     Imagen original
+% G     Imagen observada
+
+D = (I - mean2(I)) .^ 2;
+E = (I - G) .^ 2;
+db = 10 * log10(sum(D(:)) / sum(E(:)));
