@@ -367,7 +367,7 @@ f = handles.subFactor;
 
 set(handles.txtStatus, 'String', '');
 
-if (m == 0)
+if ([m n] == [0 0])
     set(handles.txtStatus, 'String', 'La ventana de origen está vacía.');
     return;
 elseif (f < 1)
@@ -408,12 +408,49 @@ function btDiff_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+i = handles.iorigin;
+j = handles.itarget;
+s1 = size(handles.im{i});
+s2 = size(handles.im{j});
+
+if (s1 == [0 0]) 
+    set(handles.txtStatus, 'String', 'La ventana A está vacía.');
+    return;
+elseif (s2 == [0 0]) 
+    set(handles.txtStatus, 'String', 'La ventana B está vacía.');
+    return;
+elseif (s1 - s2 ~= [0 0])
+    set(handles.txtStatus, 'String', 'El tamaño de las imágenes difiere.');
+    return;
+end
+
+figure;
+imshow(handles.im{i} - handles.im{j}, []);
 
 % --- Executes on button press in btError.
 function btError_Callback(hObject, eventdata, handles)
 % hObject    handle to btError (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+i = handles.iorigin;
+j = handles.itarget;
+s1 = size(handles.im{i});
+s2 = size(handles.im{j});
+
+if (s1 == [0 0]) 
+    set(handles.txtStatus, 'String', 'La ventana A está vacía.');
+    return;
+elseif (s2 == [0 0]) 
+    set(handles.txtStatus, 'String', 'La ventana B está vacía.');
+    return;
+elseif (s1 - s2 ~= [0 0])
+    set(handles.txtStatus, 'String', 'El tamaño de las imágenes difiere.');
+    return;
+end
+
+error = sum(sum(im2double(handles.im{i} - handles.im{j}).^2)) / prod(s1);
+set(handles.txtError, 'String', num2str(error));
 
 
 % --- Executes on button press in btInterpolate.
@@ -431,7 +468,7 @@ h = handles.interHeight;
 
 set(handles.txtStatus, 'String', '');
 
-if (m == 0)
+if ([m n] == [0 0])
     set(handles.txtStatus, 'String', 'La ventana de origen está vacía.');
     return;
 end
