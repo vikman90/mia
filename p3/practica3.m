@@ -299,6 +299,58 @@ function btCorner_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+[threshold, status] = str2num(get(handles.inCornerThreshold, 'String'));
+    
+if status == 0 || threshold < 0
+    errordlg('El umbral debe ser un número positivo.');
+    return
+end
+
+[wsize, status] = str2num(get(handles.inCornerSize, 'String'));
+    
+if status == 0 || wsize < 0 || mod(wsize, 2) == 0
+    errordlg('El tamaño de ventana debe ser un número positivo impar.');
+    return
+end
+
+if size(handles.im{1}) == [0 0]
+    errordlg('No hay imagen cargada.');
+    return
+end
+
+% Matriz de gradientes
+
+I = double(handles.im{1});
+h = [-1 0 1];
+Ix = imfilter(I, h, 'replicate');
+Iy = imfilter(I, h', 'replicate');
+
+% 3 matrices de sumatorias de gradientes vecinos
+
+h = ones(wsize);
+sumIx2 = imfilter(Ix .^ 2, h, 'replicate');
+sumIy2 = imfilter(Iy .^ 2, h, 'replicate');
+sumIxy = imfilter(Ix .* Iy, h, 'replicate');
+
+% E <= matriz de mínimos autovalores
+
+[m, n] = size(I);
+E = zeros(m, n);
+
+for i = 1:m
+    for j = 1:n
+        C = [sumIx2(i, j) sumIxy(i, j); sumIxy(i, j) sumIy2(i, j)];
+        E(i, j) = min(eig(C));
+    end
+end
+
+[f, c] = find(E > threshold);
+axes(handles.axes{3});
+imshow(I, []);
+hold on;
+plot(c, f, 'ys');
+whos c
+
 
 % --- Executes during object creation, after setting all properties.
 function inCornerThreshold_CreateFcn(hObject, eventdata, handles)
