@@ -367,7 +367,7 @@ plot(c, f, 'ys');
 % --- Eliminar no-máximos
 function M = removemax(E, threshold, wsize)
 % E             matriz de autovalores
-% threahold     Umbral
+% threshold     Umbral
 % wsize         tamaño del vecindario
 
 % Umbralizar pero mantener valor
