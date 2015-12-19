@@ -124,10 +124,15 @@ function btsave_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+if size(handles.im{handles.ifile}) == [0 0]
+    set(handles.txtStatus, 'String', 'No hay imagen para guardar.');
+    return
+end
+
 set(handles.txtStatus, 'String', '');
 filename = imputfile;
 
-if (filename(2))
+if (filename)
     imwrite(handles.im{handles.ifile}, filename);
 end
 
