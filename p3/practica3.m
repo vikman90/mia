@@ -344,12 +344,54 @@ for i = 1:m
     end
 end
 
-[f, c] = find(E > threshold);
+if get(handles.bxRemoveNoMaximum, 'Value')
+    [wsize, status] = str2num(get(handles.inRemoveSize, 'String'));
+    
+    if status == 0 || wsize < 0
+        errordlg('El tamaño de ventana de eliminación debe ser un número positivo.');
+        return
+    end
+    
+    E = removemax(E, threshold, wsize);
+    [f, c] = find(E);
+else
+    [f, c] = find(E > threshold);
+end
+
 axes(handles.axes{3});
 imshow(I, []);
 hold on;
 plot(c, f, 'ys');
-whos c
+
+
+% --- Eliminar no-máximos
+function M = removemax(E, threshold, wsize)
+% E             matriz de autovalores
+% threahold     Umbral
+% wsize         tamaño del vecindario
+
+% Umbralizar pero mantener valor
+M = (E > threshold) .* E;
+[f c v] = find(M);
+
+% Tabla de índices de fila, de columna y valor final
+T = [f c v];
+
+% Ordenamos en función de la 3ª columna (valor), descendentemente (-)
+S = sortrows(T, -3);
+
+% Diferencia máxima
+d = floor(wsize / 2);
+
+[m n] = size(S);
+
+for i = 1:m-1
+    for j = i+1:m
+        if abs(S(i, 1) - S(j, 1)) <= d && abs(S(i, 2) - S(j, 2)) <= d
+            M(S(j, 1), S(j, 2)) = 0;
+        end
+    end
+end
 
 
 % --- Executes during object creation, after setting all properties.
