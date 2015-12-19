@@ -285,19 +285,10 @@ function btEigvalues_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
-% --- Executes on button press in btGradient.
-function btGradient_Callback(hObject, eventdata, handles)
-% hObject    handle to btGradient (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in btCorner.
-function btCorner_Callback(hObject, eventdata, handles)
-% hObject    handle to btCorner (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+if size(handles.im{1}) == [0 0]
+    errordlg('No hay imagen cargada.');
+    return
+end
 
 [threshold, status] = str2num(get(handles.inCornerThreshold, 'String'));
     
@@ -313,14 +304,96 @@ if status == 0 || wsize < 0 || mod(wsize, 2) == 0
     return
 end
 
+E = eigenvalues(double(handles.im{1}), wsize);
+figure;
+imshow(E, []);
+
+
+% --- Executes on button press in btGradient.
+function btGradient_Callback(hObject, eventdata, handles)
+% hObject    handle to btGradient (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
 if size(handles.im{1}) == [0 0]
     errordlg('No hay imagen cargada.');
     return
 end
 
+I = double(handles.im{1});
+h = [-1 0 1];
+figure;
+
+switch get(handles.menuGradient, 'Value')
+    
+    case 1
+        Ix = imfilter(I, h, 'replicate');
+        Iy = imfilter(I, h', 'replicate');
+        Is = sqrt(Ix .^ 2 + Iy .^ 2);
+        imshow(Is, []);
+    case 2
+        Ix = imfilter(I, h, 'replicate');
+        imshow(Ix, []);
+    case 3
+        Iy = imfilter(I, h', 'replicate');
+        imshow(Iy, []);
+end
+
+% --- Executes on button press in btCorner.
+function btCorner_Callback(hObject, eventdata, handles)
+% hObject    handle to btCorner (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+if size(handles.im{1}) == [0 0]
+    errordlg('No hay imagen cargada.');
+    return
+end
+
+[threshold, status] = str2num(get(handles.inCornerThreshold, 'String'));
+    
+if status == 0 || threshold < 0
+    errordlg('El umbral debe ser un número positivo.');
+    return
+end
+
+[wsize, status] = str2num(get(handles.inCornerSize, 'String'));
+    
+if status == 0 || wsize < 0 || mod(wsize, 2) == 0
+    errordlg('El tamaño de ventana debe ser un número positivo impar.');
+    return
+end
+
 % Matriz de gradientes
 
-I = double(handles.im{1});
+E = eigenvalues(double(handles.im{1}), wsize);
+
+
+if get(handles.bxRemoveNoMaximum, 'Value')
+    [wsize, status] = str2num(get(handles.inRemoveSize, 'String'));
+    
+    if status == 0 || wsize < 0
+        errordlg('El tamaño de ventana de eliminación debe ser un número positivo.');
+        return
+    end
+    
+    E = removemax(E, threshold, wsize);
+    [f, c] = find(E);
+else
+    [f, c] = find(E > threshold);
+end
+
+axes(handles.axes{3});
+imshow(handles.im{1}, []);
+hold on;
+plot(c, f, 'ys');
+
+
+% --- Matriz de autovalores para detección de esquinas
+function E = eigenvalues(I, wsize)
+% I             imagen
+% wsize         tamaño de ventana
+
 h = [-1 0 1];
 Ix = imfilter(I, h, 'replicate');
 Iy = imfilter(I, h', 'replicate');
@@ -343,25 +416,6 @@ for i = 1:m
         E(i, j) = min(eig(C));
     end
 end
-
-if get(handles.bxRemoveNoMaximum, 'Value')
-    [wsize, status] = str2num(get(handles.inRemoveSize, 'String'));
-    
-    if status == 0 || wsize < 0
-        errordlg('El tamaño de ventana de eliminación debe ser un número positivo.');
-        return
-    end
-    
-    E = removemax(E, threshold, wsize);
-    [f, c] = find(E);
-else
-    [f, c] = find(E > threshold);
-end
-
-axes(handles.axes{3});
-imshow(I, []);
-hold on;
-plot(c, f, 'ys');
 
 
 % --- Eliminar no-máximos
