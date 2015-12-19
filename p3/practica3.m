@@ -247,6 +247,37 @@ function btEdge_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+if size(handles.im{1}) == [0 0]
+    errordlg('No hay imagen cargada.');
+    return
+end
+
+if get(handles.bxAutoThreshold, 'Value')
+    threshold = [];
+else
+    [threshold, status] = str2num(get(handles.inEdgeThreshold, 'String'));
+    
+    if status == 0 || threshold < 0 || threshold > 1
+        errordlg('El umbral debe estar entre 0 y 1.');
+        return
+    end
+end
+
+switch get(handles.menuEdge, 'Value')
+    case 1
+        handles.im{2} = edge(handles.im{1}, 'Roberts', threshold);
+    case 2
+        handles.im{2} = edge(handles.im{1}, 'Sobel', threshold);
+    case 3
+        handles.im{2} = edge(handles.im{1}, 'Prewitt', threshold);
+    case 4
+        handles.im{2} = edge(handles.im{1}, 'Canny', threshold);
+end
+
+axes(handles.axes{2});
+imshow(handles.im{2}, []);
+guidata(hObject, handles);
+
 
 % --- Executes on button press in btEigvalues.
 function btEigvalues_Callback(hObject, eventdata, handles)
