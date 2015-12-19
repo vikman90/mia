@@ -292,6 +292,13 @@ function boxContour_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of boxContour
 
+if get(hObject, 'Value') && prod(size(handles.im{1}) == [0 0])
+    errordlg('No se ha cargado la imagen original.')
+    set(hObject, 'Value', 0);
+else
+    update(handles);
+end
+
 
 % --- Executes on slider movement.
 function barLine_Callback(hObject, eventdata, handles)
@@ -302,6 +309,9 @@ function barLine_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
+if get(handles.boxContour, 'Value') == 1
+    update(handles);
+end
 
 % --- Executes during object creation, after setting all properties.
 function barLine_CreateFcn(hObject, eventdata, handles)
@@ -330,11 +340,8 @@ if (filename)
         im = rgb2gray(im);
     end
 
-    i = handles.ifile;
-    axes(handles.axes{i});
-    imshow(im, []);
-    handles.im{i} = im;
-    updatesize(handles, i);
+    handles.im{handles.ifile} = im;
+    update(handles);
     guidata(hObject, handles);
 end
 
@@ -408,11 +415,9 @@ if size(handles.im{2}) ~= [0 0]
     e = mse(handles.im{1}, handles.im{2});
     s = snr(handles.im{1}, handles.im{2});
     
-    axes(handles.axes{2});
-    imshow(handles.im{2}, []);
     set(handles.txtNoiseMse, 'String', horzcat('MSE: ', num2str(e)));
     set(handles.txtNoiseSnr, 'String', horzcat('SNR: ', num2str(s), ' dB'));
-    updatesize(handles, 2);
+    update(handles);
     guidata(hObject, handles);
 end
 
@@ -493,7 +498,7 @@ switch get(handles.menuFilterMethod, 'Value')
         h = fspecial('average', s);
         handles.im{3} = imfilter(handles.im{2}, h, 'conv');
     case 2
-        [sigma status] = str2num(get(handles.inFilterSigma, 'String'));
+        [sigma, status] = str2num(get(handles.inFilterSigma, 'String'));
         
         if status == 0 || s < 0
             errordlg('Desviación incorrecta.');
@@ -511,14 +516,18 @@ switch get(handles.menuFilterMethod, 'Value')
 end
 
 e = mse(handles.im{3}, handles.im{2});
-s = snr(handles.im{3}, handles.im{2});
-i = isnr(handles.im{1}, handles.im{2}, handles.im{3});
-axes(handles.axes{3});
-imshow(handles.im{3}, []);
 set(handles.txtFilterMse, 'String', horzcat('MSE: ', num2str(e)));
+s = snr(handles.im{3}, handles.im{2});
 set(handles.txtFilterSnr, 'String', horzcat('SNR: ', num2str(s), ' dB'));
-set(handles.txtFilterIsnr, 'String', horzcat('ISNR: ', num2str(i), ' dB'));
-updatesize(handles, 3);
+
+if size(handles.im{1}) == size(handles.im{3})
+    i = isnr(handles.im{1}, handles.im{2}, handles.im{3});
+    set(handles.txtFilterIsnr, 'String', horzcat('ISNR: ', num2str(i), ' dB'));
+else
+    errordlg('La imagen original no coincide con los demás.');
+end
+
+update(handles);
 guidata(hObject, handles);
 
 
@@ -584,13 +593,34 @@ handles.ifile = 3;
 guidata(hObject, handles);
 
 
-% --- Actualiza la información del tamaño de imagen
-function updatesize(handles, i)
+% --- Actualiza las imágenes y los tamaños
+function update(handles)
 % handles   manejadores
-% i         índice de eje
 
-s = size(handles.im{i});
-set(handles.sizes{i}, 'String', horzcat(int2str(s(2)), ' x ', int2str(s(1))));
+contour = get(handles.boxContour, 'Value');
+s = size(handles.im{1});
+
+if contour && prod(s ~= [0 0]) 
+    height = get(handles.barLine, 'Value');
+    line = max(uint8(height * s(1,1)), 1);
+    set(handles.txtLine, 'String', horzcat('Línea: ', num2str(line)));
+end
+
+for i = 1:3
+    if size(handles.im{i}) ~= [0 0]
+        axes(handles.axes{i});
+        
+        if contour && prod(size(handles.im{i}) == size(handles.im{1}))
+            plot(handles.im{i}(line, :));
+        else
+            imshow(handles.im{i}, []);
+        end
+        
+        s = size(handles.im{i});
+        set(handles.sizes{i}, 'String', horzcat(int2str(s(2)), ' x ', int2str(s(1))));
+    end
+end
+
 
 % --- Ocultar todos los paneles de parámetros
 function hidepanels(handles)
