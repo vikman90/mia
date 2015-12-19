@@ -352,23 +352,16 @@ function btSave_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-set(handles.txtStatus, 'String', '');
+if size(handles.im{handles.ifile}) == [0 0]
+    errordlg('No hay imagen para guardar.');
+    return
+end
+
 filename = imputfile;
 
-if (filename(2))
+if (filename)
     imwrite(handles.im{handles.ifile}, filename);
 end
-
-i = handles.ifile;
-
-if (handles.hasColorbar(i))
-    colorbar(handles.axes{i}, 'off');
-else
-    colorbar(handles.axes{i});
-end
-
-handles.hasColorbar(i) = ~handles.hasColorbar(i);
-guidata(hObject, handles);
 
 
 % --- Executes on button press in btColorbar.
