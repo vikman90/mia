@@ -803,6 +803,9 @@ function error = mse(I, G)
 % I     Imagen original
 % G     Imagen observada
 
+I = double(I);
+G = double(G);
+
 E = (I - G) .^ 2;
 error = sum(E(:)) / prod(size(I));
 
@@ -811,6 +814,9 @@ error = sum(E(:)) / prod(size(I));
 function db = snr(I, G)
 % I     imagen original
 % G     imagen observada
+
+I = double(I);
+G = double(G);
 
 D = (I - mean2(I)) .^ 2;
 E = (I - G) .^ 2;
@@ -823,8 +829,12 @@ function db = isnr(I, G, F)
 % G     imagen observada
 % F     imagen filtrada
 
+I = double(I);
+G = double(G);
+F = double(F);
+
 E = (I - G) .^ 2;
-D = (I - E) .^ 2;
+D = (I - F) .^ 2;
 db = 10 * log10(sum(E(:)) / sum(D(:)));
 
 
