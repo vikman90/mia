@@ -75,6 +75,11 @@ handles.interWidth = 128;
 handles.interHeight = 128;
 handles.useMean = false;
 
+for i = 1:3
+    axes(handles.axes{i});
+    imshow([]);
+end
+
 % Update handles structure
 guidata(hObject, handles);
 

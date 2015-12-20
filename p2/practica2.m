@@ -73,6 +73,11 @@ handles.noiseAlpha = 0.1;
 handles.noiseSalt = 5;
 handles.noisePepper = 5;
 
+for i = 1:3
+    axes(handles.axes{i});
+    imshow([]);
+end
+
 hidepanels(handles);
 set(handles.ppUniform, 'Visible', 'on');
 
