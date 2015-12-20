@@ -680,5 +680,5 @@ function error = mse(I, G)
 % I     Imagen original
 % G     Imagen observada
 
-E = ((I - G) .^ 2);
+E = double(I - G) .^ 2;
 error = sum(E(:)) / prod(size(I));
