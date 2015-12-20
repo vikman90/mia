@@ -130,7 +130,7 @@ end
 switch get(handles.menuSmooth, 'Value')
     case 1
         h = fspecial('average', s);
-        handles.im{1} = imfilter(handles.im{1}, h, 'conv');
+        handles.im{1} = imfilter(handles.im{1}, h, 'conv', 'replicate');
     case 2
         [sigma, status] = str2num(get(handles.inSmoothSigma, 'String'));
         
@@ -140,7 +140,7 @@ switch get(handles.menuSmooth, 'Value')
         end
         
         h = fspecial('gaussian', s, sigma);
-        handles.im{1} = imfilter(handles.im{1}, h, 'conv');
+        handles.im{1} = imfilter(handles.im{1}, h, 'conv', 'replicate');
     case 3
         handles.im{1} = medfilt2(handles.im{1}, [s s]);
     case 4

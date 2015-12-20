@@ -489,7 +489,7 @@ end
 switch get(handles.menuFilterMethod, 'Value')
     case 1
         h = fspecial('average', s);
-        handles.im{3} = imfilter(handles.im{2}, h, 'conv');
+        handles.im{3} = imfilter(handles.im{2}, h, 'conv', 'replicate');
     case 2
         [sigma, status] = str2num(get(handles.inFilterSigma, 'String'));
         
@@ -499,7 +499,7 @@ switch get(handles.menuFilterMethod, 'Value')
         end
         
         h = fspecial('gaussian', s, sigma);
-        handles.im{3} = imfilter(handles.im{2}, h, 'conv');
+        handles.im{3} = imfilter(handles.im{2}, h, 'conv', 'replicate');
     case 3
         handles.im{3} = medfilt2(handles.im{2}, [s s]);
     case 4

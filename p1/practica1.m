@@ -672,7 +672,7 @@ if (mod(factor, 2) == 0)
     h(factor + 1, :) = 0;
 end
 
-I2 = imfilter(I, h, 'conv');    % Por defecto: 'same'
+I2 = imfilter(I, h, 'conv', 'replicate');    % Por defecto: 'same'
 
 
 % --- Error cuadratico medio
