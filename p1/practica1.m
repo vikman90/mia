@@ -103,7 +103,6 @@ function btopen_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-set(handles.txtStatus, 'String', '');
 filename = imgetfile;
 
 if (filename)
@@ -130,11 +129,10 @@ function btsave_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 if size(handles.im{handles.ifile}) == [0 0]
-    set(handles.txtStatus, 'String', 'No hay imagen para guardar.');
+    errordlg('No hay imagen para guardar.');
     return
 end
 
-set(handles.txtStatus, 'String', '');
 filename = imputfile;
 
 if (filename)
@@ -375,13 +373,11 @@ j = handles.itarget;
 f = handles.subFactor;
 [m, n] = size(handles.im{i});
 
-set(handles.txtStatus, 'String', '');
-
 if ([m n] == [0 0])
-    set(handles.txtStatus, 'String', 'La ventana de origen está vacía.');
+    errordlg('La ventana de origen está vacía.');
     return;
 elseif (f < 1)
-    set(handles.txtStatus, 'String', 'Especifique un factor mayor que 0.');
+    errordlg('Especifique un factor mayor que 0.');
     return;
 end
 
@@ -424,13 +420,13 @@ s1 = size(handles.im{i});
 s2 = size(handles.im{j});
 
 if (s1 == [0 0]) 
-    set(handles.txtStatus, 'String', 'La ventana A está vacía.');
+    errordlg('La ventana A está vacía.');
     return;
 elseif (s2 == [0 0]) 
-    set(handles.txtStatus, 'String', 'La ventana B está vacía.');
+    errordlg('La ventana B está vacía.');
     return;
 elseif (s1 - s2 ~= [0 0])
-    set(handles.txtStatus, 'String', 'El tamaño de las imágenes difiere.');
+    errordlg('El tamaño de las imágenes difiere.');
     return;
 end
 
@@ -449,13 +445,13 @@ s1 = size(handles.im{i});
 s2 = size(handles.im{j});
 
 if (s1 == [0 0]) 
-    set(handles.txtStatus, 'String', 'La ventana A está vacía.');
+    errordlg('La ventana A está vacía.');
     return;
 elseif (s2 == [0 0]) 
-    set(handles.txtStatus, 'String', 'La ventana B está vacía.');
+    errordlg('La ventana B está vacía.');
     return;
 elseif (s1 - s2 ~= [0 0])
-    set(handles.txtStatus, 'String', 'El tamaño de las imágenes difiere.');
+    errordlg('El tamaño de las imágenes difiere.');
     return;
 end
 
@@ -476,26 +472,24 @@ w = handles.interWidth;
 h = handles.interHeight;
 [m, n] = size(handles.im{i});
 
-set(handles.txtStatus, 'String', '');
-
 if ([m n] == [0 0])
-    set(handles.txtStatus, 'String', 'La ventana de origen está vacía.');
+    errordlg('La ventana de origen está vacía.');
     return;
 end
 
 if (handles.argtype == 1)
     if (f < 1)
-        set(handles.txtStatus, 'String', 'Especifique un factor mayor que 0.');
+        errordlg('Especifique un factor mayor que 0.');
         return;
     end
     
     handles.im{j} = imresize(handles.im{i}, f, handles.method);
 else
     if (w < 1)
-        set(handles.txtStatus, 'String', 'Especifique un ancho mayor que 0.');
+        errordlg('Especifique un ancho mayor que 0.');
         return
     elseif (h < 1)
-        set(handles.txtStatus, 'String', 'Especifique un alto mayor que 0.');
+        errordlg('Especifique un alto mayor que 0.');
         return;
     end
     
