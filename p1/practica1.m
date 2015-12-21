@@ -105,10 +105,10 @@ function btopen_Callback(hObject, eventdata, handles)
 
 filename = imgetfile;
 
-if (filename)
+if filename
     im = imread(filename);
     
-    if (ndims(im) > 2)
+    if ndims(im) > 2
         im = rgb2gray(im);
     end
 
@@ -135,7 +135,7 @@ end
 
 filename = imputfile;
 
-if (filename)
+if filename
     imwrite(handles.im{handles.ifile}, filename);
 end
 
@@ -150,7 +150,7 @@ function btcolorbar_Callback(hObject, eventdata, handles)
 
 i = handles.ifile;
 
-if (handles.hasColorbar(i))
+if handles.hasColorbar(i)
     colorbar(handles.axes{i}, 'off');
 else
     colorbar(handles.axes{i});
@@ -373,15 +373,15 @@ j = handles.itarget;
 f = handles.subFactor;
 [m, n] = size(handles.im{i});
 
-if ([m n] == [0 0])
+if [m n] == [0 0]
     errordlg('La ventana de origen está vacía.');
     return;
-elseif (f < 1)
+elseif f < 1
     errordlg('Especifique un factor mayor que 0.');
     return;
 end
 
-if (handles.useMean)
+if handles.useMean
     im = immean(handles.im{i}, handles.subFactor);
     handles.im{j} = im(1:f:m, 1:f:n);
 else
@@ -419,13 +419,13 @@ j = handles.itarget;
 s1 = size(handles.im{i});
 s2 = size(handles.im{j});
 
-if (s1 == [0 0]) 
+if s1 == [0 0]
     errordlg('La ventana A está vacía.');
     return;
-elseif (s2 == [0 0]) 
+elseif s2 == [0 0]
     errordlg('La ventana B está vacía.');
     return;
-elseif (s1 - s2 ~= [0 0])
+elseif s1 - s2 ~= [0 0]
     errordlg('El tamaño de las imágenes difiere.');
     return;
 end
@@ -444,13 +444,13 @@ j = handles.itarget;
 s1 = size(handles.im{i});
 s2 = size(handles.im{j});
 
-if (s1 == [0 0]) 
+if s1 == [0 0]
     errordlg('La ventana A está vacía.');
     return;
-elseif (s2 == [0 0]) 
+elseif s2 == [0 0] 
     errordlg('La ventana B está vacía.');
     return;
-elseif (s1 - s2 ~= [0 0])
+elseif s1 - s2 ~= [0 0]
     errordlg('El tamaño de las imágenes difiere.');
     return;
 end
@@ -472,23 +472,23 @@ w = handles.interWidth;
 h = handles.interHeight;
 [m, n] = size(handles.im{i});
 
-if ([m n] == [0 0])
+if [m n] == [0 0]
     errordlg('La ventana de origen está vacía.');
     return;
 end
 
-if (handles.argtype == 1)
-    if (f < 1)
+if handles.argtype == 1
+    if f < 1
         errordlg('Especifique un factor mayor que 0.');
         return;
     end
     
     handles.im{j} = imresize(handles.im{i}, f, handles.method);
 else
-    if (w < 1)
+    if w < 1
         errordlg('Especifique un ancho mayor que 0.');
         return
-    elseif (h < 1)
+    elseif h < 1
         errordlg('Especifique un alto mayor que 0.');
         return;
     end
@@ -513,7 +513,7 @@ function txtInterFactor_Callback(hObject, eventdata, handles)
 
 [x, status] = str2num(get(hObject, 'String'));
 
-if (status)
+if status
     handles.interFactor = x;
 else
     handles.interFactor = 0;
@@ -535,7 +535,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function txtInterWidth_Callback(hObject, eventdata, handles)
 % hObject    handle to txtInterWidth (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -546,7 +545,7 @@ function txtInterWidth_Callback(hObject, eventdata, handles)
 
 [x, status] = str2num(get(hObject, 'String'));
 
-if (status)
+if status
     handles.interWidth = x;
 else
     handles.interWidth = 0;
@@ -568,7 +567,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function txtInterHeight_Callback(hObject, eventdata, handles)
 % hObject    handle to txtInterHeight (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -579,7 +577,7 @@ function txtInterHeight_Callback(hObject, eventdata, handles)
 
 [x, status] = str2num(get(hObject, 'String'));
 
-if (status)
+if status
     handles.interHeight = x;
 else
     handles.interHeight = 0;
@@ -628,7 +626,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function txtSubFactor_Callback(hObject, eventdata, handles)
 % hObject    handle to txtSubFactor (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -639,7 +636,7 @@ function txtSubFactor_Callback(hObject, eventdata, handles)
 
 [x, status] = str2num(get(hObject, 'String'));
 
-if (status)
+if status
     handles.subFactor = x;
 else
     handles.subFactor = 0;
@@ -659,6 +656,7 @@ function boxMean_Callback(hObject, eventdata, handles)
 handles.useMean = get(hObject, 'Value');
 guidata(hObject, handles);
 
+
 % --- Suavizar imagen mediante la media
 function I2 = immean(I, factor)
 % I         imagen de entrada
@@ -666,7 +664,7 @@ function I2 = immean(I, factor)
 
 h = ones(factor) / factor^2;
 
-if (mod(factor, 2) == 0)
+if mod(factor, 2) == 0
     h(:, factor + 1) = 0;
     h(factor + 1, :) = 0;
 end

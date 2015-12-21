@@ -99,15 +99,6 @@ function varargout = practica2_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
-function inNoisePepper_Callback(hObject, eventdata, handles)
-% hObject    handle to inNoisePepper (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of inNoisePepper as text
-%        str2double(get(hObject,'String')) returns contents of inNoisePepper as a double
-
-
 % --- Executes during object creation, after setting all properties.
 function inNoisePepper_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to inNoisePepper (see GCBO)
@@ -119,15 +110,6 @@ function inNoisePepper_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-function inNoiseSalt_Callback(hObject, eventdata, handles)
-% hObject    handle to inNoiseSalt (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of inNoiseSalt as text
-%        str2double(get(hObject,'String')) returns contents of inNoiseSalt as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -143,15 +125,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-function inNoiseAlpha_Callback(hObject, eventdata, handles)
-% hObject    handle to inNoiseAlpha (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of inNoiseAlpha as text
-%        str2double(get(hObject,'String')) returns contents of inNoiseAlpha as a double
-
-
 % --- Executes during object creation, after setting all properties.
 function inNoiseAlpha_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to inNoiseAlpha (see GCBO)
@@ -163,15 +136,6 @@ function inNoiseAlpha_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-function inNoiseMean_Callback(hObject, eventdata, handles)
-% hObject    handle to inNoiseMean (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of inNoiseMean as text
-%        str2double(get(hObject,'String')) returns contents of inNoiseMean as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -187,15 +151,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-function inNoiseVariance_Callback(hObject, eventdata, handles)
-% hObject    handle to inNoiseVariance (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of inNoiseVariance as text
-%        str2double(get(hObject,'String')) returns contents of inNoiseVariance as a double
-
-
 % --- Executes during object creation, after setting all properties.
 function inNoiseVariance_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to inNoiseVariance (see GCBO)
@@ -209,15 +164,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-function inNoiseA_Callback(hObject, eventdata, handles)
-% hObject    handle to inNoiseA (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of inNoiseA as text
-%        str2double(get(hObject,'String')) returns contents of inNoiseA as a double
-
-
 % --- Executes during object creation, after setting all properties.
 function inNoiseA_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to inNoiseA (see GCBO)
@@ -229,15 +175,6 @@ function inNoiseA_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-function inNoiseB_Callback(hObject, eventdata, handles)
-% hObject    handle to inNoiseB (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of inNoiseB as text
-%        str2double(get(hObject,'String')) returns contents of inNoiseB as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -338,10 +275,10 @@ function btOpen_Callback(hObject, eventdata, handles)
 
 filename = imgetfile;
 
-if (filename)
+if filename
     im = imread(filename);
     
-    if (ndims(im) > 2)
+    if ndims(im) > 2
         im = rgb2gray(im);
     end
 
@@ -364,7 +301,7 @@ end
 
 filename = imputfile;
 
-if (filename)
+if filename
     imwrite(handles.im{handles.ifile}, filename);
 end
 
@@ -377,7 +314,7 @@ function btColorbar_Callback(hObject, eventdata, handles)
 
 i = handles.ifile;
 
-if (handles.hasColorbar(i))
+if handles.hasColorbar(i)
     colorbar(handles.axes{i}, 'off');
 else
     colorbar(handles.axes{i});
@@ -393,7 +330,7 @@ function btNoise_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-if (size(handles.im{1}) == [0 0])
+if size(handles.im{1}) == [0 0]
     errordlg('No hay imagen de entrada.');
     return
 end
@@ -451,15 +388,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-function inFilterSize_Callback(hObject, eventdata, handles)
-% hObject    handle to inFilterSize (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of inFilterSize as text
-%        str2double(get(hObject,'String')) returns contents of inFilterSize as a double
-
-
 % --- Executes during object creation, after setting all properties.
 function inFilterSize_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to inFilterSize (see GCBO)
@@ -479,7 +407,7 @@ function btFilter_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-if (size(handles.im{2}) == [0 0])
+if size(handles.im{2}) == [0 0]
     errordlg('No hay imagen observada.');
     return
 end
@@ -540,13 +468,13 @@ j = handles.itarget;
 s1 = size(handles.im{i});
 s2 = size(handles.im{j});
 
-if (s1 == [0 0]) 
+if s1 == [0 0]
     errordlg('La ventana A está vacía.');
     return;
-elseif (s2 == [0 0]) 
+elseif s2 == [0 0]
     errordlg('La ventana B está vacía.');
     return;
-elseif (s1 - s2 ~= [0 0])
+elseif s1 - s2 ~= [0 0]
     errordlg('El tamaño de las imágenes difiere.');
     return;
 end
@@ -841,15 +769,6 @@ F = double(F);
 E = (I - G) .^ 2;
 D = (I - F) .^ 2;
 db = 10 * log10(sum(E(:)) / sum(D(:)));
-
-
-function inFilterSigma_Callback(hObject, eventdata, handles)
-% hObject    handle to inFilterSigma (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of inFilterSigma as text
-%        str2double(get(hObject,'String')) returns contents of inFilterSigma as a double
 
 
 % --- Executes during object creation, after setting all properties.

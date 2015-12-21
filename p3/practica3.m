@@ -115,7 +115,7 @@ function btSmooth_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-if (size(handles.im{1}) == [0 0])
+if size(handles.im{1}) == [0 0]
     errordlg('No hay imagen cargada.');
     return
 end
@@ -175,10 +175,10 @@ function btOpen_Callback(hObject, eventdata, handles)
 
 filename = imgetfile;
 
-if (filename)
+if filename
     im = imread(filename);
     
-    if (ndims(im) > 2)
+    if ndims(im) > 2
         im = rgb2gray(im);
     end
 
@@ -210,7 +210,7 @@ end
 
 filename = imputfile;
 
-if (filename)
+if filename
     imwrite(handles.im{ifile}, filename);
 end
 
